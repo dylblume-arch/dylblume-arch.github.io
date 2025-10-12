@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bublisio — Coming Soon</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --deep-space:#070712;
+      --cloud-ink:#E5E7EB;
+      --muted-indigo:#4F54C3;
+      --mist-violet:#7A7FCF;
+      --light-violet:#9A9FE2;
+    }
+    html,body{
+      height:100%;margin:0;
+      background:var(--deep-space);
+      color:var(--cloud-ink);
+      font-family:'Lora', serif;
+      display:grid;place-items:center;text-align:center;
+      overflow:hidden;
+    }
+
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+    }
+
+    .logo-orb {
+      width:72px;aspect-ratio:1/1;border-radius:50%;background:
+        radial-gradient(35% 35% at 50% 42%,rgba(255,255,255,0.10),rgba(255,255,255,0) 60%),
+        radial-gradient(60% 60% at 50% 55%,var(--muted-indigo) 0%,#5C61C7 55%,#676BCA 70%,rgba(103,107,202,0) 71%);
+      filter:
+        drop-shadow(0 0 12px rgba(122,127,207,0.7))
+        drop-shadow(0 0 25px rgba(122,127,207,0.45));
+      margin:0 auto 20px;
+    }
+
+    h1, h2, p {
+      font-family:'Lora', serif;
+    }
+
+    h1 {
+      margin:0;
+      font-size:2.5rem;
+      font-weight:700;
+      animation:fadeIn 1.6s ease 0.3s forwards;
+      opacity:0;
+    }
+
+    h2 {
+      margin:8px 0 18px;
+      font-size:1.4rem;
+      font-weight:600;
+      color:var(--light-violet);
+      animation:fadeIn 1.6s ease 0.5s forwards;
+      opacity:0;
+    }
+
+    p {
+      max-width:540px;
+      margin:0.4em auto 0;
+      opacity:0;
+      line-height:1.7;
+      font-size:1.05rem;
+      font-weight:400;
+      letter-spacing:0.015em;
+      animation:fadeIn 1.6s ease 0.7s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      padding: 0 24px;
+      background: transparent;
+    }
+
+    .description-line {
+      display:block;
+      margin:0.6em 0;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.1rem; }
+      p { font-size: 0.95rem; line-height: 1.6; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="content">
+    <div class="logo-orb" aria-label="Bublisio logo"></div>
+    <h1>Bublisio</h1>
+    <h2>Coming Soon</h2>
+    <p>
+      <span class="description-line">Reimagining SEO through connection and visualization.</span>
+      <span class="description-line">An intelligent system quietly taking shape — clean, visual, and alive.  Something new is forming beneath the surface.</span>
+    </p>
+  </div>
+
+  <script>
+    'use strict';
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext && canvas.getContext('2d');
+    let w = 0, h = 0, dpr = 1, bubbles = [];
+    const ELASTICITY = 0.9;
+
+    function resize(){
+      if(!ctx) return;
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      w = Math.max(1, window.innerWidth);
+      h = Math.max(1, window.innerHeight);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      createBubbles();
+    }
+
+    function createBubbles(){
+      const count = Math.max(22, Math.floor((w * h) / 50000) + 12);
+      bubbles = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 15 + Math.random() * 35,
+        dx: (Math.random() - 0.5) * 0.45,
+        dy: (Math.random() - 0.5) * 0.45,
+        opacity: 0.15 + Math.random() * 0.35
+      }));
+    }
+
+    function drawBackground(){
+      if(!ctx) return;
+      ctx.fillStyle = '#070712';
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    function animate(){
+      if(!ctx) return;
+      drawBackground();
+
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const a = bubbles[i];
+          const b = bubbles[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy);
+          const minDist = a.r + b.r;
+
+          if (dist < minDist && dist > 0) {
+            const overlap = 0.5 * (minDist - dist);
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            a.x -= overlap * nx;
+            a.y -= overlap * ny;
+            b.x += overlap * nx;
+            b.y += overlap * ny;
+
+            const tx = a.dx;
+            const ty = a.dy;
+            a.dx = b.dx * ELASTICITY;
+            a.dy = b.dy * ELASTICITY;
+            b.dx = tx * ELASTICITY;
+            b.dy = ty * ELASTICITY;
+          }
+        }
+      }
+
+      for (const b of bubbles) {
+        b.x += b.dx; b.y += b.dy;
+        if (b.x - b.r < 0 || b.x + b.r > w) b.dx *= -1;
+        if (b.y - b.r < 0 || b.y + b.r > h) b.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+        const peak = b.opacity;
+        g.addColorStop(0.00, `rgba(122,127,207,${peak})`);
+        g.addColorStop(0.55, `rgba(122,127,207,${peak * 0.55})`);
+        g.addColorStop(0.82, `rgba(122,127,207,${peak * 0.25})`);
+        g.addColorStop(0.96, `rgba(122,127,207,${peak * 0.08})`);
+        g.addColorStop(1.00, 'rgba(122,127,207,0)');
+        ctx.fillStyle = g;
+        ctx.fill();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
